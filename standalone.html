@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rift Skateboard - Standalone Replica</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            background: #000011;
+            overflow: hidden;
+            height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+        }
+
+        html, body {
+            margin: 0;
+            height: 100%;
+            overflow: hidden; 
+        }
+
+        .main_content_scroll {
+            overflow-y: scroll;
+            height: 100%;
+            pointer-events: all;
+        }
+
+        .main_content_scroll::-webkit-scrollbar {
+            width: 0px;
+            display: none;
+        }
+
+        #skateboard-holder {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 98;
+            pointer-events: none;
+        }
+
+        .content {
+            height: 500vh; /* Make it scrollable */
+            position: relative;
+            z-index: 1;
+        }
+
+        .section {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: #ffffff;
+            text-align: center;
+            background: linear-gradient(180deg, rgba(0,0,17,0.1) 0%, rgba(25,25,50,0.2) 50%, rgba(0,0,17,0.1) 100%);
+            backdrop-filter: blur(2px);
+            padding: 20px;
+        }
+
+        .section:nth-child(even) {
+            background: linear-gradient(180deg, rgba(10,10,30,0.1) 0%, rgba(35,35,65,0.2) 50%, rgba(10,10,30,0.1) 100%);
+        }
+
+        .skateboard-section {
+            background: linear-gradient(180deg, rgba(15,15,40,0.2) 0%, rgba(45,45,85,0.3) 50%, rgba(15,15,40,0.2) 100%);
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .skateboard-section h1 {
+            font-size: 3.5rem;
+            margin: 0;
+            background: linear-gradient(90deg, #FF66CC 6.25%, #445FFF 94.27%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-align: center;
+            font-weight: 700;
+            letter-spacing: -2px;
+        }
+
+        .skateboard-section p {
+            font-size: 1.4rem;
+            margin: 0;
+            text-align: center;
+            max-width: 800px;
+            line-height: 1.5;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .loader {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #ffffff;
+            z-index: 1000;
+            background: rgba(0, 0, 17, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .loader-text {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .loader-progress {
+            font-size: 1rem;
+            color: #445FFF;
+            font-weight: 600;
+        }
+
+        .noise {
+            -webkit-animation: noise 1.2s steps(3) infinite both;
+            animation: noise 1.2s steps(3) infinite both;
+            background: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiBmaWxsPSJibGFjayIgZmlsbC1vcGFjaXR5PSIwLjEiLz4KPHN2Zz4K");
+            background-size: 64px;
+            height: 200%;
+            left: -50%;
+            pointer-events: none;
+            position: fixed;
+            top: -50%;
+            width: 200%;
+            will-change: auto;
+            z-index: 100;
+            opacity: 0.03;
+        }
+
+        @keyframes noise {
+            0% { transform: translate3d(1%,-1%,0) }
+            10% { transform: translate3d(-5%,-2%,0) }
+            20% { transform: translate3d(10%,5%,0) }
+            30% { transform: translate3d(5%,-11%,0) }
+            40% { transform: translate3d(-12%,-5%,0) }
+            50% { transform: translate3d(10%,9%,0) }
+            60% { transform: translate3d(15%,0,0) }
+            70% { transform: translate3d(-10%,8%,0) }
+            80% { transform: translate3d(10%,2%,0) }
+            90% { transform: translate3d(1%,5%,0) }
+            to { transform: translate3d(0,8%,0) }
+        }
+
+        .footer-info {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+            z-index: 200;
+            background: rgba(0, 0, 17, 0.5);
+            padding: 10px 15px;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .skateboard-section h1 {
+                font-size: 2.5rem;
+            }
+            
+            .skateboard-section p {
+                font-size: 1.2rem;
+            }
+            
+            .section {
+                font-size: 1.5rem;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="noise"></div>
+    
+    <div class="loader" id="loader">
+        <div class="loader-text">Loading Rift Skateboard...</div>
+        <div class="loader-progress" id="progress">0%</div>
+    </div>
+
+    <div id="skateboard-holder"></div>
+
+    <section class="main_content_scroll" id="scroll-container">
+        <div class="content">
+            <div class="section">
+                <div>
+                    <h1>Rift Skateboard Replica</h1>
+                    <p style="font-size: 1.2rem; margin-top: 20px; color: rgba(255,255,255,0.7);">
+                        Scroll down to see the 3D skateboard in action
+                    </p>
+                </div>
+            </div>
+            
+            <div class="section skateboard-section">
+                <h1>3D Skateboard</h1>
+                <p>This holographic skateboard rotates continuously and moves with your scroll, exactly like in the original Rift app. The environment mapping creates beautiful reflective surfaces.</p>
+            </div>
+            
+            <div class="section">
+                <div>
+                    <h1>Scroll-Linked Camera</h1>
+                    <p style="font-size: 1.2rem; color: rgba(255,255,255,0.7);">
+                        The camera follows your scroll movement with responsive positioning
+                    </p>
+                </div>
+            </div>
+            
+            <div class="section">
+                <div>
+                    <h1>Environment Mapping</h1>
+                    <p style="font-size: 1.2rem; color: rgba(255,255,255,0.7);">
+                        Real-time cube camera reflections create the holographic effect
+                    </p>
+                </div>
+            </div>
+            
+            <div class="section">
+                <div>
+                    <h1>Perfect Replica</h1>
+                    <p style="font-size: 1.2rem; color: rgba(255,255,255,0.7);">
+                        Scroll back up to see more! This is an exact recreation of the Rift skateboard
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="footer-info">
+        Standalone Rift Skateboard Replica<br>
+        Self-contained • No external dependencies
+    </div>
+
+    <script src="three.min.js"></script>
+    <script src="OBJLoader.js"></script>
+    
+    <script>
+        let scene, camera, renderer, sphereCamera, skateboard;
+        let scrollContainer = document.getElementById("scroll-container");
+        let loader = document.getElementById("loader");
+        let progress = document.getElementById("progress");
+
+        function init() {
+            const loadingManager = new THREE.LoadingManager(
+                // loaded
+                () => {
+                    console.log("✅ Rift skateboard loaded successfully");
+                    clearLoader();
+                    const scrollTop = scrollContainer.scrollTop;
+                    updateCameraPosition(scrollTop);
+                    render();
+                },
+                // progress
+                (itemUrl, itemsLoaded, itemsTotal) => {
+                    const percent = Math.round((itemsLoaded / itemsTotal) * 100);
+                    progress.textContent = `${percent}%`;
+                    console.log(`📦 Loading progress: ${percent}%`);
+                }
+            );
+
+            // Scene setup
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 50);
+            camera.position.set(0, 0, 5);
+
+            // Renderer setup
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setClearColor(0x000011, 0);
+            renderer.autoClear = false;
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+            document.getElementById('skateboard-holder').appendChild(renderer.domElement);
+
+            // Cube camera for environment reflections (exact original implementation)
+            sphereCamera = new THREE.CubeCamera(1, 9000000000000, 512);
+            sphereCamera.position.set(0, 0, 0);
+            scene.add(sphereCamera);
+            
+            // Load skateboard
+            loadSkateboard(loadingManager);
+            
+            // Setup environment
+            setupEnvironment();
+            
+            // Setup lighting
+            setupLighting();
+            
+            // Event listeners
+            setupEventListeners();
+        }
+
+        function loadSkateboard(loadingManager) {
+            // Exact original material from Rift app
+            const skateboardMaterial = new THREE.MeshPhongMaterial({
+                envMap: sphereCamera.renderTarget.texture
+            });
+
+            const objLoader = new THREE.OBJLoader(loadingManager);
+
+            objLoader.load(
+                'skateboard.obj',
+                function(object) {
+                    console.log('🛹 Skateboard model loaded:', object);
+                    
+                    object.traverse(function(child) {
+                        if (child instanceof THREE.Mesh) {
+                            child.material = skateboardMaterial;
+                            child.material.flatShading = false;
+                        }
+                    });
+
+                    skateboard = object;
+                    scene.add(object);
+                    console.log('🎯 Skateboard added to scene');
+
+                    // Responsive positioning exactly like original
+                    positionSkateboard();
+                },
+                function(xhr) {
+                    console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+                },
+                function(error) {
+                    console.error('❌ Error loading skateboard:', error);
+                }
+            );
+        }
+
+        function positionSkateboard() {
+            if (!skateboard) return;
+            
+            const width = window.innerWidth;
+            
+            if (width < 420) {
+                skateboard.position.set(1.6, -3.38, 0);
+                skateboard.scale.set(1.3, 1.3, 1.3);
+            } else if (width < 770) {
+                skateboard.position.set(1, -2.3, 0);
+                skateboard.scale.set(1.2, 1.2, 1.2);
+            } else if (width < 1050) {
+                skateboard.position.set(1, -1.3, 0);
+                skateboard.scale.set(1, 1, 1);
+            } else if (width < 1500) {
+                skateboard.position.set(0, -3.8, 0);
+                skateboard.scale.set(1.3, 1.3, 1.3);
+            } else if (width < 1550) {
+                skateboard.position.set(0, -3.7, 0);
+                skateboard.scale.set(1.3, 1.3, 1.3);
+            } else {
+                skateboard.position.set(0, -3.5, 0);
+                skateboard.scale.set(1.3, 1.3, 1.3);
+            }
+        }
+
+        function setupEnvironment() {
+            // Use the original environment texture for all faces
+            const materialArray = [];
+            const envTexture = new THREE.TextureLoader().load('environment.jpg');
+            
+            for (let i = 0; i < 6; i++) {
+                const material = new THREE.MeshBasicMaterial({ 
+                    map: envTexture,
+                    side: THREE.BackSide
+                });
+                materialArray.push(material);
+            }
+                     
+            const skyboxGeometry = new THREE.SphereGeometry(9000000000000, 62, 62);
+            const skybox = new THREE.Mesh(skyboxGeometry, materialArray);
+            scene.add(skybox);
+        }
+
+        function setupLighting() {
+            // Original Rift lighting setup
+            const ambientLight = new THREE.AmbientLight(0xffffff, 1);
+            scene.add(ambientLight);
+        }
+
+        function setupEventListeners() {
+            // Window resize handler
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+                
+                // Reposition skateboard on resize
+                positionSkateboard();
+            });
+
+            // Scroll handler
+            scrollContainer.addEventListener('scroll', () => {
+                updateCameraPosition(scrollContainer.scrollTop);
+            });
+        }
+
+        function updateCameraPosition(scrollTop) {
+            const width = window.innerWidth;
+            
+            // Exact camera movement logic from original
+            if (width < 450) {
+                camera.position.y = scrollTop * -0.006;
+            } else if (width < 770) {
+                camera.position.y = scrollTop * -0.004;
+            } else if (width < 1050) {
+                camera.position.y = scrollTop * -0.003;  
+            } else if (width < 1500) {
+                camera.position.y = scrollTop * -0.005;
+            } else if (width < 1550) {
+                camera.position.y = scrollTop * -0.005;
+            } else {
+                camera.position.y = scrollTop * -0.004;
+            }
+        }
+        
+        function render() {
+            // Render scene
+            renderer.render(scene, camera);
+            
+            // Update cube camera for reflections
+            sphereCamera.update(renderer, scene);
+
+            // Skateboard rotation (exact from original)
+            if (skateboard) {
+                skateboard.rotation.x += -0.02;
+            }
+
+            requestAnimationFrame(render);
+        }
+
+        function clearLoader() {
+            loader.style.display = 'none';
+        }
+
+        // Start the application
+        console.log('🚀 Starting Rift Skateboard Replica...');
+        init();
+    </script>
+</body>
+</html>
