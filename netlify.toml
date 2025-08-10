@@ -1,0 +1,93 @@
+[build]
+  # No build process needed - static files only
+  publish = "."
+
+[build.environment]
+  # Set Node.js version (though not needed for this static site)
+  NODE_VERSION = "18"
+
+[[headers]]
+  # Apply these headers to all routes
+  for = "/*"
+  [headers.values]
+    # Security headers
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    
+    # Content Security Policy for 3D content
+    Content-Security-Policy = '''
+      default-src 'self';
+      script-src 'self' 'unsafe-inline' 'unsafe-eval';
+      style-src 'self' 'unsafe-inline';
+      img-src 'self' data: blob:;
+      connect-src 'self';
+      font-src 'self' data:;
+      object-src 'none';
+      media-src 'self';
+      worker-src 'self' blob:;
+      child-src 'self' blob:;
+    '''
+
+[[headers]]
+  # Optimize caching for static assets
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.obj"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+    Content-Type = "application/octet-stream"
+
+[[headers]]
+  for = "/*.jpg"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.png"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/netlify-skateboard.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# Redirect rules
+[[redirects]]
+  from = "/skateboard"
+  to = "/netlify-skateboard.html"
+  status = 200
+
+[[redirects]]
+  from = "/demo"
+  to = "/netlify-skateboard.html"
+  status = 200
+
+# Handle 404s by serving the main skateboard page
+[[redirects]]
+  from = "/*"
+  to = "/netlify-skateboard.html"
+  status = 404
+
+# Performance optimizations
+[build.processing]
+  skip_processing = false
+
+[build.processing.css]
+  bundle = true
+  minify = true
+
+[build.processing.js]
+  bundle = false  # Keep separate for Three.js compatibility
+  minify = false  # Avoid breaking Three.js
+
+[build.processing.html]
+  pretty_urls = true
+
+[build.processing.images]
+  compress = true
