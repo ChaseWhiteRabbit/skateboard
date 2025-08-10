@@ -57,7 +57,12 @@
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
 
-# Redirect rules
+# Redirect rules - serve standalone skateboard as default
+[[redirects]]
+  from = "/"
+  to = "/netlify-skateboard.html"
+  status = 200
+
 [[redirects]]
   from = "/skateboard"
   to = "/netlify-skateboard.html"
@@ -68,7 +73,12 @@
   to = "/netlify-skateboard.html"
   status = 200
 
-# Handle 404s by serving the main skateboard page
+[[redirects]]
+  from = "/original"
+  to = "/index.html"
+  status = 200
+
+# Handle 404s by serving the standalone skateboard page
 [[redirects]]
   from = "/*"
   to = "/netlify-skateboard.html"
