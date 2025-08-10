@@ -344,17 +344,13 @@
                     }
                 );
 
-                // Scene setup
+                // Scene setup - EXACT original Rift implementation
                 scene = new THREE.Scene();
                 camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 50);
                 camera.position.set(0, 0, 5);
 
-                // Renderer setup with enhanced error handling
-                renderer = new THREE.WebGLRenderer({ 
-                    antialias: true, 
-                    alpha: true,
-                    preserveDrawingBuffer: true // Better for Netlify deployment
-                });
+                // Renderer setup - EXACT original Rift implementation  
+                renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
                 renderer.setClearColor(0x000011, 0);
                 renderer.autoClear = false;
                 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -362,7 +358,7 @@
 
                 document.getElementById('skateboard-holder').appendChild(renderer.domElement);
 
-                // Cube camera for environment reflections
+                // Cube camera for environment reflections (exact original implementation)
                 sphereCamera = new THREE.CubeCamera(1, 9000000000000, 512);
                 sphereCamera.position.set(0, 0, 0);
                 scene.add(sphereCamera);
@@ -385,45 +381,39 @@
         }
 
         function loadSkateboard(loadingManager) {
-            try {
-                // Material with error handling
-                const skateboardMaterial = new THREE.MeshPhongMaterial({
-                    envMap: sphereCamera.renderTarget.texture
-                });
+            // Exact original material from Rift app
+            const skateboardMaterial = new THREE.MeshPhongMaterial({
+                envMap: sphereCamera.renderTarget.texture
+            });
 
-                const objLoader = new THREE.OBJLoader(loadingManager);
+            const objLoader = new THREE.OBJLoader(loadingManager);
 
-                objLoader.load(
-                    'skateboard.obj',
-                    function(object) {
-                        console.log('🛹 Skateboard model loaded:', object);
-                        
-                        object.traverse(function(child) {
-                            if (child instanceof THREE.Mesh) {
-                                child.material = skateboardMaterial;
-                                child.material.flatShading = false;
-                            }
-                        });
-
-                        skateboard = object;
-                        scene.add(object);
-                        console.log('🎯 Skateboard added to scene');
-
-                        // Responsive positioning
-                        positionSkateboard();
-                    },
-                    function(xhr) {
-                        if (xhr.lengthComputable) {
-                            console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+            objLoader.load(
+                'skateboard.obj',
+                function(object) {
+                    console.log('🛹 Skateboard model loaded:', object);
+                    
+                    object.traverse(function(child) {
+                        if (child instanceof THREE.Mesh) {
+                            child.material = skateboardMaterial;
+                            child.material.flatShading = false;
                         }
-                    },
-                    function(error) {
-                        showError(`Error loading skateboard: ${error.message || 'Unknown error'}`);
-                    }
-                );
-            } catch (error) {
-                showError(`Skateboard loading setup error: ${error.message}`);
-            }
+                    });
+
+                    skateboard = object;
+                    scene.add(object);
+                    console.log('🎯 Skateboard added to scene');
+
+                    // Responsive positioning exactly like original
+                    positionSkateboard();
+                },
+                function(xhr) {
+                    console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+                },
+                function(error) {
+                    console.error('❌ Error loading skateboard:', error);
+                }
+            );
         }
 
         function positionSkateboard() {
@@ -431,6 +421,7 @@
             
             const width = window.innerWidth;
             
+            // EXACT original Rift positioning
             if (width < 420) {
                 skateboard.position.set(1.6, -3.38, 0);
                 skateboard.scale.set(1.3, 1.3, 1.3);
@@ -489,6 +480,7 @@
         }
 
         function setupLighting() {
+            // Original Rift lighting setup
             const ambientLight = new THREE.AmbientLight(0xffffff, 1);
             scene.add(ambientLight);
         }
@@ -505,13 +497,9 @@
                 positionSkateboard();
             });
 
-            // Scroll handler with throttling for better performance
-            let scrollTimeout;
+            // Scroll handler - EXACT original implementation
             scrollContainer.addEventListener('scroll', () => {
-                clearTimeout(scrollTimeout);
-                scrollTimeout = setTimeout(() => {
-                    updateCameraPosition(scrollContainer.scrollTop);
-                }, 16); // ~60fps
+                updateCameraPosition(scrollContainer.scrollTop);
             });
 
             // Error handling for WebGL context loss
@@ -525,23 +513,20 @@
         function updateCameraPosition(scrollTop) {
             const width = window.innerWidth;
             
-            // Camera movement logic with bounds checking
-            let multiplier = -0.004; // default
-            
+            // Exact camera movement logic from original
             if (width < 450) {
-                multiplier = -0.006;
+                camera.position.y = scrollTop * -0.006;
             } else if (width < 770) {
-                multiplier = -0.004;
+                camera.position.y = scrollTop * -0.004;
             } else if (width < 1050) {
-                multiplier = -0.003;  
+                camera.position.y = scrollTop * -0.003;  
             } else if (width < 1500) {
-                multiplier = -0.005;
+                camera.position.y = scrollTop * -0.005;
             } else if (width < 1550) {
-                multiplier = -0.005;
+                camera.position.y = scrollTop * -0.005;
+            } else {
+                camera.position.y = scrollTop * -0.004;
             }
-            
-            // Bound camera movement
-            camera.position.y = Math.max(Math.min(scrollTop * multiplier, 10), -10);
         }
         
         function render() {
