@@ -57,14 +57,19 @@
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
 
-# Redirect rules - serve standalone skateboard as default
+# Redirect rules - serve brand homepage as default
 [[redirects]]
   from = "/"
-  to = "/netlify-skateboard.html"
+  to = "/brand-home.html"
   status = 200
 
 [[redirects]]
   from = "/skateboard"
+  to = "/netlify-skateboard.html"
+  status = 200
+
+[[redirects]]
+  from = "/3d"
   to = "/netlify-skateboard.html"
   status = 200
 
@@ -78,10 +83,10 @@
   to = "/original-two-objects.html"
   status = 200
 
-# Handle 404s by serving the standalone skateboard page
+# Handle 404s by serving the brand homepage
 [[redirects]]
   from = "/*"
-  to = "/netlify-skateboard.html"
+  to = "/brand-home.html"
   status = 404
 
 # Performance optimizations
